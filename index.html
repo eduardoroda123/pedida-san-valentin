@@ -4,98 +4,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tengo una pregunta...</title>
-    <style>
-        /* Estilos directos para evitar fallos de carga */
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #ffebee;
-            /* Rosa muy clarito */
-            font-family: 'Arial Rounded MT Bold', 'Helvetica', sans-serif;
-            overflow: hidden;
-            text-align: center;
-        }
-
-        .card {
-            background: white;
-            padding: 3rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            max-width: 90%;
-        }
-
-        h1 {
-            color: #d32f2f;
-            font-size: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            position: relative;
-            height: 60px;
-            /* Espacio para que el botón no salte feo */
-        }
-
-        button {
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        #yesBtn {
-            background-color: #ff4081;
-            color: white;
-            z-index: 10;
-            /* Siempre por encima */
-        }
-
-        #noBtn {
-            background-color: #9e9e9e;
-            color: white;
-            position: relative;
-        }
-
-        #success-message {
-            display: none;
-        }
-
-        .gif-container img {
-            width: 150px;
-            margin-bottom: 1rem;
-        }
-    </style>
+    <title>Para ti ❤️</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
     <div class="card">
-        <div class="gif-container">
-            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ3bmZ3bmZ3bmZ3bmZ3bmZ3bmZ3bmZ3bmZ3bmZ3bmZ3JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/K97pMT6QD8YVvS9Z7S/giphy.gif"
-                alt="Gatito">
+        <div class="photo-container">
+            <!-- 
+                INSTRUCCIONES:
+                1. Guarda tu foto en la carpeta 'fotos' que he creado.
+                2. Nombra la foto exactamente como: 'nosotros.jpg'
+                3. ¡Listo! Se mostrará automáticamente.
+            -->
+            <img id="mainPhoto" src="fotos/ranas-dandose-la.mano.jpeg" alt="Nosotros"
+                onerror="this.onerror=null; this.src='https://media.giphy.com/media/26BRv0ThflsHCqDrG/giphy.gif';">
         </div>
 
         <div id="quiz-section">
-            <h1 id="question">¿Quieres ser mi San Valentín? ❤️</h1>
+            <h1 id="question">¿Quieres ser mi San Valentín? 💙</h1>
+            <p>Prometo que no será el último :)</p>
             <div class="buttons">
                 <button id="yesBtn">¡SÍ!</button>
-                <button id="noBtn">No</button>
+                <button id="noBtn">No (inténtalo)</button>
             </div>
+            <p id="timid-message" style="opacity: 0.6; font-size: 0.9rem; margin-top: 20px;">El botón "No" parece
+                tímido... 🙈</p>
         </div>
 
         <div id="success-message">
-            <h1>¡SÍIIIIII! 💖</h1>
-            <p>Sabía que no podrías decir que no (literalmente). Te quiero.</p>
+            <h1>¡Sabía que dirías que sí! 💙</h1>
+            <p>Eres lo mejor que me ha pasado.<br>Te amo muchísimo.</p>
+            <div class="photo-container" style="height: 150px; margin-top: 20px;">
+                <img src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif" alt="Happy Cat">
+            </div>
         </div>
     </div>
 
@@ -107,29 +50,77 @@
         const quizSection = document.querySelector('#quiz-section');
         const successMessage = document.querySelector('#success-message');
 
-        // Lógica del botón "No" que huye
-        noBtn.addEventListener('mouseover', moveButton);
-        noBtn.addEventListener('touchstart', moveButton); // Para que también huya en el móvil
+        // LA SOLUCIÓN NUCLEAR: Sacar el botón al body
+        const moverBoton = () => {
+            // 1. En el primer movimiento, lo sacamos al body para que no le afecten los padres
+            if (noBtn.parentNode !== document.body) {
+                document.body.appendChild(noBtn);
+            }
 
-        function moveButton() {
-            // Calculamos límites para que no se salga de la pantalla visible
-            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+            // 2. Forzamos fixed
+            noBtn.style.position = 'fixed';
+            noBtn.style.zIndex = '10000';
 
-            noBtn.style.position = 'fixed'; // Se vuelve absoluto respecto a la pantalla
-            noBtn.style.left = x + 'px';
-            noBtn.style.top = y + 'px';
-        }
+            // 3. Medidas del viewport (espacio visible)
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+
+            // 4. Medidas del botón
+            const btnWidth = noBtn.offsetWidth;
+            const btnHeight = noBtn.offsetHeight;
+
+            // 5. MARGEN DE SEGURIDAD: 10% de la pantalla para que nunca toque los bordes
+            const marginX = vw * 0.1;
+            const marginY = vh * 0.1;
+
+            // 6. Rango de movimiento (X entre 10% y 90%, Y entre 10% y 90%)
+            const minX = marginX;
+            const maxX = vw - btnWidth - marginX;
+            const minY = marginY;
+            const maxY = vh - btnHeight - marginY;
+
+            // 7. Cálculo de posición aleatoria
+            const randomX = Math.random() * (maxX - minX) + minX;
+            const randomY = Math.random() * (maxY - minY) + minY;
+
+            // 8. Aplicamos
+            noBtn.style.left = randomX + 'px';
+            noBtn.style.top = randomY + 'px';
+        };
+
+        // Eventos
+        noBtn.addEventListener('mouseenter', moverBoton);
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            moverBoton();
+        });
 
         // Lógica del botón "Sí"
         yesBtn.addEventListener('click', () => {
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
+            // Efecto de Confeti
+            const duration = 3000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
+            const randomInRange = (min, max) => Math.random() * (max - min) + min;
+
+            const interval = setInterval(function () {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                const particleCount = 50 * (timeLeft / duration);
+
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+
+            // Cambiar vista
             quizSection.style.display = 'none';
+            noBtn.style.display = 'none'; // ocultamos el boton rebelde
+            document.getElementById('timid-message').style.display = 'none';
             successMessage.style.display = 'block';
         });
     </script>
